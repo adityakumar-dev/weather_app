@@ -34,7 +34,7 @@ Future<List<dynamic>> WeatherLocationReport() async {
 
 const String _baseUrl = "https://api.open-meteo.com/v1/forecast";
 const String _urlValues =
-    "&current=temperature_2m,wind_speed_10m,cloud_cover,relative_humidity_2m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,cloud_cover";
+    "&current=temperature_2m,wind_speed_10m,cloud_cover,relative_humidity_2m,weather_code,is_day&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,cloud_cover";
 Future<void> weatherCityReport(double latitude, double longitude,
     List placeName, BuildContext context) async {
   var weather = await http.get(Uri.parse(

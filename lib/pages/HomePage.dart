@@ -28,6 +28,8 @@ class _HomeState extends State<Home> {
     final weatherProvider = Provider.of<AppData>(context);
     bool weatherRepo() => weatherProvider.weatherData['current'] == null;
     var weatherRepoData = weatherProvider.weatherData['current'];
+    var weatheDesc = weatherProvider.weatherData['weatherDesc'];
+    bool isDay() => weatherRepoData['is_day'] == 1 ? true : false;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: Home_App_Bar(context),
@@ -74,11 +76,13 @@ class _HomeState extends State<Home> {
                     borderRadius: BorderRadius.all(Radius.circular(20))),
                 child: Column(
                   children: [
-                    Lottie.asset('assets/lottie/cloud_snow.json',
-                        height: 150, width: 150),
-                    const Text(
-                      "Rainy",
-                      style: TextStyle(
+                    Lottie.asset(
+                        isDay() ? weatheDesc['day'] : weatheDesc['night'],
+                        height: 150,
+                        width: 150),
+                    Text(
+                      weatheDesc['desc'],
+                      style: const TextStyle(
                           color: AppPallate.white,
                           fontWeight: FontWeight.w400,
                           fontSize: 20),
@@ -123,16 +127,19 @@ class _HomeState extends State<Home> {
                       children: [
                         WeatherComp(
                             'assets/images/svg/wind-svg.svg',
+                            'wind Speed',
                             weatherRepo()
                                 ? 'loading..'
                                 : "${weatherRepoData['wind_speed_10m']}km/h"),
                         WeatherComp(
                             'assets/images/svg/moisture-svg.svg',
+                            'Humidity',
                             weatherRepo()
                                 ? 'loading..'
                                 : "${weatherRepoData['relative_humidity_2m']}%"),
                         WeatherComp(
                             'assets/images/svg/cloud-svg.svg',
+                            'Cloud',
                             weatherRepo()
                                 ? 'loading..'
                                 : "${weatherRepoData['cloud_cover']}%"),
@@ -151,13 +158,20 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Column WeatherComp(String path, String text) {
+  Column WeatherComp(String path, String type, String text) {
     return Column(
       children: [
         SvgPicture.asset(
           path,
           height: 25,
           width: 25,
+        ),
+        Text(
+          type,
+          style: const TextStyle(
+              color: AppPallate.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600),
         ),
         Text(
           text,

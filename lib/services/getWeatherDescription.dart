@@ -48,36 +48,36 @@ Map<String, String> getWeatherDescription(weatherCode) {
     case 73:
     case 75:
       return {
-        'day': 'assets/lottie/sunny.json',
-        'night': 'assets/lottie/night.json',
-        'desc': 'Clear Sky'
+        'day': 'assets/lottie/day_cloud_snow.json',
+        'night': 'assets/lottie/cloud_snow.json',
+        'desc': 'SnowFall'
       };
     case 80:
     case 81:
     case 82:
       return {
-        'day': 'assets/lottie/sunny.json',
-        'night': 'assets/lottie/night.json',
-        'desc': 'Clear Sky'
+        'day': 'assets/lottie/day_cloud_rain.json',
+        'night': 'assets/lottie/nigh_cloud_rain.json',
+        'desc': 'Rain showers'
       };
     case 95:
       return {
-        'day': 'assets/lottie/sunny.json',
-        'night': 'assets/lottie/night.json',
-        'desc': 'Clear Sky'
+        'day': 'assets/lottie/thunderstorm.json',
+        'night': 'assets/lottie/thunderstorm.json',
+        'desc': 'Thunderstorm'
       };
     case 96:
     case 99:
       return {
-        'day': 'assets/lottie/sunny.json',
-        'night': 'assets/lottie/night.json',
-        'desc': 'Clear Sky'
+        'day': 'assets/lottie/sunny_rain_thunderstorm.json',
+        'night': 'assets/lottie/rain_thunderstorm.json',
+        'desc': 'Thunderstorm with hail'
       };
     default:
       return {
-        'day': 'assets/lottie/sunny.json',
-        'night': 'assets/lottie/night.json',
-        'desc': 'Clear Sky'
+        'day': 'assets/lottie/error.json',
+        'night': 'assets/lottie/error.json',
+        'desc': 'Error Unknown Weather'
       };
   }
 }
