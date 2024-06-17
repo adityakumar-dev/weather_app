@@ -1,12 +1,16 @@
 // ignore_for_file: non_constant_identifier_names
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:lottie/lottie.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
+import 'package:weather_app/pages/components/HomePageCom/animation_weather.dart';
 import 'package:weather_app/pages/components/Home_app_bar.dart';
+import 'package:weather_app/pages/components/appBar_Com/leading.dart';
+import 'package:weather_app/services/com/fetchCity.dart';
 import 'package:weather_app/services/data_handler.dart';
+import 'package:weather_app/services/location_handler.dart';
 import 'package:weather_app/services/weather_api_handler.dart';
 
 class Home extends StatefulWidget {
@@ -20,7 +24,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    WeatherLocationReport();
   }
 
   @override
@@ -29,7 +32,7 @@ class _HomeState extends State<Home> {
     bool weatherRepo() => weatherProvider.weatherData['current'] == null;
     var weatherRepoData = weatherProvider.weatherData['current'];
     var weatheDesc = weatherProvider.weatherData['weatherDesc'];
-    bool isDay() => weatherRepoData['is_day'] == 1 ? true : false;
+    bool is_day() => weatherRepoData['is_day'] == 1 ? true : false;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: Home_App_Bar(context),
@@ -49,7 +52,7 @@ class _HomeState extends State<Home> {
           child: Column(
             children: [
               const SizedBox(
-                height: 10,
+                height: 20,
               ),
               const Text(
                 "Today",
@@ -58,9 +61,9 @@ class _HomeState extends State<Home> {
                     fontSize: 30,
                     color: AppPallate.white),
               ),
-              const Text(
-                "Tue, Dec 8",
-                style: TextStyle(
+              Text(
+                weatherRepo() ? ' ' : weatherRepoData['date'],
+                style: const TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 10,
                     color: Colors.white38),
@@ -74,113 +77,13 @@ class _HomeState extends State<Home> {
                 decoration: const BoxDecoration(
                     color: Color.fromRGBO(255, 255, 255, 0.3),
                     borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: Column(
-                  children: [
-                    Lottie.asset(
-                        isDay() ? weatheDesc['day'] : weatheDesc['night'],
-                        height: 150,
-                        width: 150),
-                    Text(
-                      weatheDesc['desc'],
-                      style: const TextStyle(
-                          color: AppPallate.white,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 20),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          weatherRepo()
-                              ? 'Loading..'
-                              : weatherRepoData['temperature_2m'].toString(),
-                          style: const TextStyle(
-                              color: AppPallate.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 50),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          child: Text(
-                            weatherRepo() ? '' : "°C",
-                            style: const TextStyle(
-                                color: AppPallate.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                        weatherRepo()
-                            ? 'loading..'
-                            : "Feels like ${weatherRepoData['temperature_2m']}°C",
-                        style: const TextStyle(
-                            fontSize: 15, color: AppPallate.white)),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        WeatherComp(
-                            'assets/images/svg/wind-svg.svg',
-                            'wind Speed',
-                            weatherRepo()
-                                ? 'loading..'
-                                : "${weatherRepoData['wind_speed_10m']}km/h"),
-                        WeatherComp(
-                            'assets/images/svg/moisture-svg.svg',
-                            'Humidity',
-                            weatherRepo()
-                                ? 'loading..'
-                                : "${weatherRepoData['relative_humidity_2m']}%"),
-                        WeatherComp(
-                            'assets/images/svg/cloud-svg.svg',
-                            'Cloud',
-                            weatherRepo()
-                                ? 'loading..'
-                                : "${weatherRepoData['cloud_cover']}%"),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    )
-                  ],
-                ),
+                child: animation_Weather(
+                    weatherRepo, is_day, weatheDesc, weatherRepoData),
               ),
             ],
           ),
         )),
       ),
-    );
-  }
-
-  Column WeatherComp(String path, String type, String text) {
-    return Column(
-      children: [
-        SvgPicture.asset(
-          path,
-          height: 25,
-          width: 25,
-        ),
-        Text(
-          type,
-          style: const TextStyle(
-              color: AppPallate.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600),
-        ),
-        Text(
-          text,
-          style: const TextStyle(
-              color: AppPallate.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w400),
-        )
-      ],
     );
   }
 }

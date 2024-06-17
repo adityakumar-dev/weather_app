@@ -20,6 +20,8 @@ dependencies:
   http: ^1.2.1
   provider: ^6.1.2
   geocoding: ^3.0.0
+  intl: ^0.19.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -35,6 +37,7 @@ flutter:
     - assets/images/
     - assets/lottie/
     - assets/images/svg/
+    - .env
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
