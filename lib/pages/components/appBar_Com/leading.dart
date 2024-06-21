@@ -11,7 +11,7 @@ import '../../../services/com/fetchCity.dart';
 GestureDetector AppBarLeadingComponent(context) {
   return GestureDetector(
     onTap: () async {
-      Position position = await determinePosition();
+      Position position = await determinePosition(context);
       try {
         var response = await fetchCity(position.latitude, position.longitude);
         if (response.statusCode == 200) {
