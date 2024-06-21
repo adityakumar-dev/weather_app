@@ -5,6 +5,8 @@
     "Pallate",
     "placemark",
     "RGBO",
-    "weathe"
+    "tempdata",
+    "weathe",
+    "weathercode"
   ]
 }
