@@ -18,6 +18,32 @@ class AppData extends ChangeNotifier {
     }
 
     _data['hourly']['time'] = convertedTime;
+    _data['forecast'] = hourlyForecast();
+
+    if (kDebugMode) {
+      // print(_data['current']['time']);
+      // print(_data['forecast']);
+      // print(_data['hourly']['time']);
+      weeklyForecast();
+    }
+    notifyListeners();
+  }
+
+  String getTime(String isoTime) {
+    try {
+      DateTime dateTime = DateTime.parse(isoTime);
+      Duration offset = const Duration(hours: 5, minutes: 30);
+      dateTime = dateTime.add(offset);
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+
+      return formattedDate;
+    } catch (e) {
+      if (kDebugMode) {}
+      return '';
+    }
+  }
+
+  List hourlyForecast() {
     var dt1 = DateTime.parse(getTime(_data['current']['time']));
     int count = 0, tempCount = 0;
     var forecastTimeStamps = [];
@@ -47,28 +73,27 @@ class AppData extends ChangeNotifier {
       }
       tempCount++;
     });
-    _data['forecast'] = forecastTimeStamps;
-
-    if (kDebugMode) {
-      print(_data['current']['time']);
-      print(_data['forecast']);
-    }
-    notifyListeners();
+    return forecastTimeStamps;
   }
 
-  String getTime(String isoTime) {
-    try {
-      DateTime dateTime = DateTime.parse(isoTime);
-      Duration offset = const Duration(hours: 5, minutes: 30);
-      dateTime = dateTime.add(offset);
-      String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+  List weeklyForecast() {
+    Map<String, List<String>> weeklyDate = {};
+    List<dynamic> allDates = _data['hourly']['time'];
 
-      return formattedDate;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error parsing time: $e');
+    for (int i = 0; i < allDates.length; i++) {
+      DateTime temp = DateTime.parse(allDates[i]);
+      String currentDate =
+          '${temp.year}-${temp.month.toString().padLeft(2, '0')}-${temp.day.toString().padLeft(2, '0')}';
+      String currentTime =
+          '${temp.hour.toString().padLeft(2, '0')}-${temp.minute.toString().padLeft(2, '0')}';
+
+      if (weeklyDate.containsKey(currentDate)) {
+        weeklyDate[currentDate]!.add(currentTime);
+      } else {
+        weeklyDate[currentDate] = [currentTime];
       }
-      return '';
     }
+    print(weeklyDate);
+    return [];
   }
 }
