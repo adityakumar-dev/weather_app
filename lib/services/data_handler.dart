@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/services/getWeatherDescription.dart';
@@ -19,21 +21,18 @@ class AppData extends ChangeNotifier {
 
     _data['hourly']['time'] = convertedTime;
     _data['forecast'] = hourlyForecast();
+    _data['weekly'] = weeklyForecast();
 
     if (kDebugMode) {
-      // print(_data['current']['time']);
-      // print(_data['forecast']);
-      // print(_data['hourly']['time']);
-      weeklyForecast();
+      print(_data['weekly']);
     }
     notifyListeners();
   }
 
   String getTime(String isoTime) {
     try {
-      DateTime dateTime = DateTime.parse(isoTime);
-      Duration offset = const Duration(hours: 5, minutes: 30);
-      dateTime = dateTime.add(offset);
+      DateTime dateTime =
+          DateTime.parse(isoTime).add(const Duration(hours: 5, minutes: 30));
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
 
       return formattedDate;
@@ -43,57 +42,99 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  List hourlyForecast() {
-    var dt1 = DateTime.parse(getTime(_data['current']['time']));
-    int count = 0, tempCount = 0;
-    var forecastTimeStamps = [];
-    _data['hourly']['time'].forEach((value) {
-      var tempdata = {
-        "temperature": _data['hourly']['temperature_2m'][tempCount].toString(),
-        "time": value,
-        "cloud": _data['hourly']['cloud_cover'][tempCount].toString(),
-        'humidity':
-            _data['hourly']['relative_humidity_2m'][tempCount].toString(),
-        "wind-speed": _data['hourly']['wind_speed_10m'][tempCount].toString(),
-        "weathercode": _data['hourly']['weather_code'][tempCount],
-        "is_day": _data['hourly']['is_day'][tempCount].toString(),
-      };
-      var tempvalue = value.toString().split(' ');
-      tempdata['time'] = tempvalue[1];
-      if (count < 12) {
-        var dt2 = DateTime.parse(value);
+  List<Map<String, dynamic>> hourlyForecast() {
+    final dt1 = DateTime.parse(getTime(_data['current']['time']));
+    final forecastTimeStamps = <Map<String, dynamic>>[];
 
-        if (dt1.compareTo((dt2)) == 0) {
-          forecastTimeStamps.add(tempdata);
-          count++;
-        } else if (dt1.compareTo(dt2) < 0) {
-          forecastTimeStamps.add(tempdata);
-          count++;
-        }
+    for (int i = 0;
+        i < _data['hourly']['time'].length && forecastTimeStamps.length < 12;
+        i++) {
+      final dt2 = DateTime.parse(_data['hourly']['time'][i]);
+      if (dt1.compareTo(dt2) <= 0) {
+        forecastTimeStamps.add({
+          "temperature": _data['hourly']['temperature_2m'][i].toString(),
+          "time": _data['hourly']['time'][i].split(' ')[1],
+          "cloud": _data['hourly']['cloud_cover'][i].toString(),
+          "humidity": _data['hourly']['relative_humidity_2m'][i].toString(),
+          "wind-speed": _data['hourly']['wind_speed_10m'][i].toString(),
+          "weathercode": _data['hourly']['weather_code'][i],
+          "is_day": _data['hourly']['is_day'][i].toString(),
+        });
       }
-      tempCount++;
-    });
+    }
+
     return forecastTimeStamps;
   }
 
-  List weeklyForecast() {
-    Map<String, List<String>> weeklyDate = {};
+  Map<String, Map<String, List<String>>> weeklyForecast() {
+    Map<String, Map<String, List<String>>> weeklyDate = {};
     List<dynamic> allDates = _data['hourly']['time'];
 
     for (int i = 0; i < allDates.length; i++) {
       DateTime temp = DateTime.parse(allDates[i]);
+
       String currentDate =
           '${temp.year}-${temp.month.toString().padLeft(2, '0')}-${temp.day.toString().padLeft(2, '0')}';
       String currentTime =
           '${temp.hour.toString().padLeft(2, '0')}-${temp.minute.toString().padLeft(2, '0')}';
-
       if (weeklyDate.containsKey(currentDate)) {
-        weeklyDate[currentDate]!.add(currentTime);
+        weeklyDate[currentDate]!['time']!.add(currentTime);
+        weeklyDate[currentDate]!['temperature']!
+            .add(_data['hourly']['temperature_2m'][i].toString());
+        weeklyDate[currentDate]!['humidity']!
+            .add(_data['hourly']['relative_humidity_2m'][i].toString());
+        weeklyDate[currentDate]!['wind_speed']!
+            .add(_data['hourly']['wind_speed_10m'][i].toString());
+        weeklyDate[currentDate]!['cloud_cover']!
+            .add(_data['hourly']['cloud_cover'][i].toString());
+        weeklyDate[currentDate]!['is_day']!
+            .add(_data['hourly']['is_day'][i].toString());
+        weeklyDate[currentDate]!['weather_code']!
+            .add(_data['hourly']['weather_code'][i].toString());
       } else {
-        weeklyDate[currentDate] = [currentTime];
+        weeklyDate[currentDate] = {
+          'time': [currentTime],
+          'temperature': [_data['hourly']['temperature_2m'][i].toString()],
+          'humidity': [_data['hourly']['relative_humidity_2m'][i].toString()],
+          'cloud_cover': [_data['hourly']['cloud_cover'][i].toString()],
+          'is_day': [_data['hourly']['is_day'][i].toString()],
+          'wind_speed': [_data['hourly']['wind_speed_10m'][i].toString()],
+          'weather_code': [_data['hourly']['weather_code'][i].toString()],
+        };
       }
     }
-    print(weeklyDate);
-    return [];
+//extract data for represent the day
+    for (var entry in weeklyDate.entries) {
+      String date = entry.key;
+      //extracting weather code
+      List<String>? weatherCodes = entry.value['weather_code'];
+
+      Map<String, int> weatherCodeCount = {};
+      // print(entry.value);
+      for (String codes in weatherCodes!) {
+        weatherCodeCount[codes] = (weatherCodeCount[codes] ?? 0) + 1;
+      }
+      String mostCommonCode = weatherCodeCount.entries
+          .reduce((a, b) => a.value > b.value ? a : b)
+          .key;
+      weeklyDate[date]!['w_code'] = [mostCommonCode];
+      //extracting temperature
+      weeklyDate[date]!['t_code'] = getMaxMinValue(entry, 'temperature');
+      weeklyDate[date]!['c_cover'] = getMaxMinValue(entry, 'cloud_cover');
+      weeklyDate[date]!['w_speed'] = getMaxMinValue(entry, 'wind_speed');
+      weeklyDate[date]!['h_code'] = getMaxMinValue(entry, 'humidity');
+    }
+
+    return weeklyDate;
+  }
+
+  List<String> getMaxMinValue(
+      MapEntry<String, Map<String, List<String>>> entry, String str) {
+    return [
+      entry.value[str]!
+          .reduce((a, b) => double.parse(a) > double.parse(b) ? a : b),
+      entry.value[str]!
+          .reduce((a, b) => double.parse(a) < double.parse(b) ? a : b)
+    ];
   }
 }
