@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/services/getWeatherDescription.dart';
@@ -21,11 +19,11 @@ class AppData extends ChangeNotifier {
 
     _data['hourly']['time'] = convertedTime;
     _data['forecast'] = hourlyForecast();
-    _data['weekly'] = weeklyForecast();
+    weeklyForecast();
+    print(_data['dates']);
+    print(_data['weekly'][0]);
 
-    if (kDebugMode) {
-      print(_data['weekly']);
-    }
+    if (kDebugMode) {}
     notifyListeners();
   }
 
@@ -66,13 +64,12 @@ class AppData extends ChangeNotifier {
     return forecastTimeStamps;
   }
 
-  Map<String, Map<String, List<String>>> weeklyForecast() {
+  void weeklyForecast() {
     Map<String, Map<String, List<String>>> weeklyDate = {};
     List<dynamic> allDates = _data['hourly']['time'];
 
     for (int i = 0; i < allDates.length; i++) {
       DateTime temp = DateTime.parse(allDates[i]);
-
       String currentDate =
           '${temp.year}-${temp.month.toString().padLeft(2, '0')}-${temp.day.toString().padLeft(2, '0')}';
       String currentTime =
@@ -100,9 +97,11 @@ class AppData extends ChangeNotifier {
           'is_day': [_data['hourly']['is_day'][i].toString()],
           'wind_speed': [_data['hourly']['wind_speed_10m'][i].toString()],
           'weather_code': [_data['hourly']['weather_code'][i].toString()],
+          'day': [getWeekDay(temp.weekday)]
         };
       }
     }
+
 //extract data for represent the day
     for (var entry in weeklyDate.entries) {
       String date = entry.key;
@@ -124,8 +123,12 @@ class AppData extends ChangeNotifier {
       weeklyDate[date]!['w_speed'] = getMaxMinValue(entry, 'wind_speed');
       weeklyDate[date]!['h_code'] = getMaxMinValue(entry, 'humidity');
     }
+    List date = weeklyDate.keys.toList();
 
-    return weeklyDate;
+    List<Map<String, List<String>>> dateTemp = weeklyDate.values.toList();
+
+    _data['weekly'] = dateTemp;
+    _data['dates'] = date;
   }
 
   List<String> getMaxMinValue(
@@ -136,5 +139,25 @@ class AppData extends ChangeNotifier {
       entry.value[str]!
           .reduce((a, b) => double.parse(a) < double.parse(b) ? a : b)
     ];
+  }
+
+  String getWeekDay(int num) {
+    switch (num) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+    }
+    return "Error!";
   }
 }
