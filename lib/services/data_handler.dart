@@ -116,7 +116,15 @@ class AppData extends ChangeNotifier {
       String mostCommonCode = weatherCodeCount.entries
           .reduce((a, b) => a.value > b.value ? a : b)
           .key;
-      weeklyDate[date]!['w_code'] = [mostCommonCode];
+      weeklyDate[date]!['w_code'] = [
+        getWeatherDescription(int.parse(mostCommonCode))['day'] ??
+            'assets/lottie/error.json'
+      ];
+
+      weeklyDate[date]!['w_desc'] = [
+        getWeatherDescription(int.parse(mostCommonCode))['desc'] ?? 'Error!'
+      ];
+
       //extracting temperature
       weeklyDate[date]!['t_code'] = getMaxMinValue(entry, 'temperature');
       weeklyDate[date]!['c_cover'] = getMaxMinValue(entry, 'cloud_cover');

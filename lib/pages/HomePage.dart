@@ -83,71 +83,13 @@ class _HomeState extends State<Home> {
               const SizedBox(
                 height: 20,
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 15),
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    color: Color.fromRGBO(255, 255, 255, 0.3),
-                    borderRadius: BorderRadius.circular(20)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(weatherRepo() ? "error" : dates[0],
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 35)),
-                        Text(weatherRepo() ? "error" : weekly[0]['day'][0],
-                            style: const TextStyle(
-                                color: Colors.white38,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20)),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Lottie.asset('assets/lottie/sunny.json',
-                                height: 150, width: 150),
-                            Text(
-                              weatherRepo()
-                                  ? "Error"
-                                  : "${weekly[0]['t_code'][0]}°C - ${weekly[0]['t_code'][1]}°C",
-                              style: const TextStyle(
-                                  color: AppPallate.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            getWeeklyCom(weatherRepo, weekly, "wind-svg",
-                                "w_speed", "km/h", "Wind Speed"),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            getWeeklyCom(weatherRepo, weekly, "moisture-svg",
-                                "h_code", "%", "Humidity"),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            getWeeklyCom(weatherRepo, weekly, "cloud-svg",
-                                "c_cover", "%", "Cloud"),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(
+                      weekly.length - 1,
+                      (index) =>
+                          getWeeklyWidget(weatherRepo, dates, weekly, index)),
                 ),
               ),
               const SizedBox(
@@ -178,8 +120,94 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Container getWeeklyWidget(bool weatherRepo(), dates, weekly, int index) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.all(5),
+      width: MediaQuery.of(context).size.width - 30,
+      decoration: BoxDecoration(
+          color: Color.fromRGBO(255, 255, 255, 0.3),
+          borderRadius: BorderRadius.circular(20)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(weatherRepo() ? "error" : dates[index],
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 35)),
+              Text(weatherRepo() ? "error" : weekly[index]['day'][0],
+                  style: const TextStyle(
+                      color: Colors.white38,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20)),
+            ],
+          ),
+          weatherWeeklyCom(weatherRepo, weekly, index)
+        ],
+      ),
+    );
+  }
+
+  Row weatherWeeklyCom(bool weatherRepo(), weekly, int index) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset(
+                weatherRepo()
+                    ? 'assets/lottie/error.json'
+                    : weekly[index]['w_code'][0],
+                height: 150,
+                width: 150),
+            Text(
+              weatherRepo() ? "Error" : weekly[0]['w_desc'][0],
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            Text(
+              weatherRepo()
+                  ? "Error"
+                  : "${weekly[index]['t_code'][0]}°C - ${weekly[index]['t_code'][1]}°C",
+              style: const TextStyle(
+                  color: AppPallate.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            getWeeklyCom(weatherRepo, weekly, "wind-svg", "w_speed", "km/h",
+                "Wind Speed", index),
+            const SizedBox(
+              height: 5,
+            ),
+            getWeeklyCom(weatherRepo, weekly, "moisture-svg", "h_code", "%",
+                "Humidity", index),
+            const SizedBox(
+              height: 5,
+            ),
+            getWeeklyCom(weatherRepo, weekly, "cloud-svg", "c_cover", "%",
+                "Cloud", index),
+            const SizedBox(
+              height: 5,
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
   getWeeklyCom(bool weatherRepo(), dynamic weekly, String svg, String itemName,
-      String standard, String desc) {
+      String standard, String desc, int index) {
     return Column(
       children: [
         Row(
@@ -196,15 +224,15 @@ class _HomeState extends State<Home> {
             ),
             Text(
               desc,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             )
           ],
         ),
         Text(
           weatherRepo()
               ? 'error'
-              : "${weekly[0][itemName][0]}$standard - ${weekly[0][itemName][1]}$standard",
+              : "${weekly[index][itemName][0]}$standard - ${weekly[index][itemName][1]}$standard",
           style: const TextStyle(color: AppPallate.white, fontSize: 16),
         ),
       ],
