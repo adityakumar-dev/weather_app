@@ -31,7 +31,7 @@ GestureDetector AppBarLeadingComponent(context) {
               data['display_name'].toString().split(', ').toSet().toList();
           List place = [PlaceName[0], PlaceName[1]];
           weatherCityReport(
-              position.latitude, position.longitude, place, context);
+              position.latitude, position.longitude, place, context, -1);
         }
         Navigator.of(context).pop();
       } catch (e) {

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/pages/components/HomePageCom/temperature_subtt.dart';
-import 'package:weather_app/pages/components/HomePageCom/weatherComList.dart';
-
+import 'package:weather_app/pages/components/HomePageCom/main_headerCom.dart';
 import '../../../core/theme/AppPallate.dart';
 
 Column animation_Weather(

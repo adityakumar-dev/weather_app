@@ -6,7 +6,7 @@ class AppData extends ChangeNotifier {
   Map<String, dynamic> _data = {};
   get weatherData => _data;
 
-  void updateDataList(Map<String, dynamic> test) async {
+  Future<void> updateDataList(Map<String, dynamic> test) async {
     _data = test;
     _data['weatherDesc'] =
         getWeatherDescription(test['current']['weather_code']);
@@ -20,8 +20,6 @@ class AppData extends ChangeNotifier {
     _data['hourly']['time'] = convertedTime;
     _data['forecast'] = hourlyForecast();
     weeklyForecast();
-    print(_data['dates']);
-    print(_data['weekly'][0]);
 
     if (kDebugMode) {}
     notifyListeners();

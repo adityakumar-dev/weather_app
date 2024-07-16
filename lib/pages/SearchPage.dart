@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:weather_app/services/city_list_handler.dart';
 import 'package:weather_app/services/weather_api_handler.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
@@ -75,7 +77,7 @@ class CustomSearchDelegate extends SearchDelegate {
                 onTap: () async {
                   try {
                     await weatherCityReport(double.parse(city['lat']),
-                        double.parse(city['lon']), placeName, context);
+                        double.parse(city['lon']), placeName, context, -1);
                   } catch (e) {
                     print(e.toString());
                   }

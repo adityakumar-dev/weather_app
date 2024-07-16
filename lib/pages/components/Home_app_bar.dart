@@ -2,18 +2,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/pages/SearchPage.dart';
+import 'package:weather_app/services/AppBartittleHandler.dart';
+import 'package:weather_app/services/city_list_handler.dart';
 import '../../core/theme/AppPallate.dart';
-import '../../services/data_handler.dart';
 import 'appBar_Com/leading.dart';
 import 'appBar_Com/title.dart';
 
 AppBar Home_App_Bar(context) {
-  final weatherProvider = Provider.of<AppData>(context);
+  final cityOfList = Provider.of<CityList>(context);
+  final appBarIndex = Provider.of<AppBarHandler>(context);
   return AppBar(
     elevation: 0.0,
     backgroundColor: AppPallate.transparent,
     centerTitle: true,
-    title: appBar_title(weatherProvider),
+    title: appBar_title(cityOfList.listCity[appBarIndex.getIndex]),
     leading: AppBarLeadingComponent(context),
     actions: [
       GestureDetector(

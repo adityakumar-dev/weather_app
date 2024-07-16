@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../services/data_handler.dart';
-
-RichText appBar_title(AppData weatherProvider) {
+RichText appBar_title(dynamic data) {
   return RichText(
     text: TextSpan(
-      text: weatherProvider.weatherData['place'] == null
-          ? 'Loading City..'
-          : weatherProvider.weatherData['place'] + ', ',
+      text: data['place'] == null ? 'Loading City..' : data['place'] + ', ',
       style: const TextStyle(
           color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 20),
       children: [
         TextSpan(
-            text: weatherProvider.weatherData['place'] == null
-                ? 'Loading City..'
-                : weatherProvider.weatherData['placeCon'],
+            text: data['place'] == null ? 'Loading City..' : data['placeCon'],
             style: const TextStyle(color: Colors.white38, fontSize: 15))
       ],
     ),
