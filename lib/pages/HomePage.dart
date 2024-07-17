@@ -3,12 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
+import 'package:weather_app/pages/EditCityList.dart';
 import 'package:weather_app/pages/components/HomePageCom/WeeklyForecast.dart';
 import 'package:weather_app/pages/components/HomePageCom/animation_weather.dart';
 import 'package:weather_app/pages/components/HomePageCom/day_weather_forecast.dart';
 import 'package:weather_app/pages/components/Home_app_bar.dart';
 import 'package:weather_app/services/AppBartittleHandler.dart';
 import 'package:weather_app/services/city_list_handler.dart';
+import 'package:weather_app/services/weather_api_handler.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -26,9 +28,14 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final cityOfList = Provider.of<CityList>(context);
-    final pageController = PageController();
     final appBarIndex = Provider.of<AppBarHandler>(context);
-    int currentPageIndex = 0;
+    Future<void> _refreshData() async {
+      updateCityReport(context);
+
+      await Future.delayed(const Duration(seconds: 2));
+    }
+
+    final pageController = PageController(initialPage: appBarIndex.getIndex);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -39,12 +46,9 @@ class _HomeState extends State<Home> {
           onPageChanged: (index) {
             setState(() {
               appBarIndex.setIndex(index);
-              print(cityOfList.listCity[index]['place']);
             });
           },
           itemBuilder: (context, index) {
-            print(cityOfList.listCity[index]['weatherDesc']);
-
             final weatherProvider = cityOfList.listCity[index];
             bool weatherRepo() => weatherProvider['current'] == null;
             var weatherRepoData = weatherProvider['current'];
@@ -74,6 +78,7 @@ class _HomeState extends State<Home> {
                       curve: Curves.easeInOut);
                 }
               },
+              onVerticalDragDown: (details) => {},
               child: Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
@@ -88,76 +93,86 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 child: SafeArea(
-                    child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Today",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30,
-                            color: AppPallate.white),
-                      ),
-                      Text(
-                        weatherRepo() ? ' ' : weatherRepoData['date'],
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 10,
-                            color: Colors.white38),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 25),
-                        padding: const EdgeInsets.all(15.0),
-                        decoration: const BoxDecoration(
-                            color: Color.fromRGBO(255, 255, 255, 0.3),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20))),
-                        child: animation_Weather(
-                            weatherRepo, is_day, weatheDesc, weatherRepoData),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(
-                              weekly.length - 1,
-                              (index) => getWeeklyWidget(
-                                  context, weatherRepo, dates, weekly, index)),
+                    child: RefreshIndicator(
+                  onRefresh: _refreshData,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Today",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30,
+                              color: AppPallate.white),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Container(
+                        Text(
+                          weatherRepo() ? ' ' : weatherRepoData['date'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 10,
+                              color: Colors.white38),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
                           margin: const EdgeInsets.symmetric(horizontal: 25),
-                          alignment: Alignment.centerLeft,
-                          child: const Text(
-                            "12 Hour's Forecast",
-                            style: TextStyle(
-                                color: AppPallate.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30),
-                          )),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        children: List.generate(forecast.length, (index) {
-                          return weatherForecastHour(
-                              weatherRepo, forecast[index]);
-                        }),
-                      )
-                    ],
+                          padding: const EdgeInsets.all(15.0),
+                          decoration: const BoxDecoration(
+                              color: Color.fromRGBO(255, 255, 255, 0.3),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                          child: animation_Weather(
+                              weatherRepo, is_day, weatheDesc, weatherRepoData),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(
+                                weekly.length - 1,
+                                (index) => getWeeklyWidget(context, weatherRepo,
+                                    dates, weekly, index)),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 25),
+                            alignment: Alignment.centerLeft,
+                            child: const Text(
+                              "12 Hour's Forecast",
+                              style: TextStyle(
+                                  color: AppPallate.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30),
+                            )),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Column(
+                          children: List.generate(forecast.length, (index) {
+                            return weatherForecastHour(
+                                weatherRepo, forecast[index]);
+                          }),
+                        ),
+                      ],
+                    ),
                   ),
                 )),
               ),
             );
           }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const Editcitylist()));
+        },
+        child: const Icon(Icons.edit),
+      ),
     );
   }
 }

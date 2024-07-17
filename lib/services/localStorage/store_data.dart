@@ -5,13 +5,20 @@ import 'package:weather_app/services/city_list_handler.dart';
 class StoreLocally {
   Future<void> getLocally(context) async {
     var box = await Hive.openBox('userData');
-    List<dynamic> rawData = box.get('city');
-    List<Map<String, dynamic>> data = rawData
-        .map((item) => (item as Map<dynamic, dynamic>).cast<String, dynamic>())
-        .toList();
+    var temp = box.get('city');
     final listOfCity = Provider.of<CityList>(context, listen: false);
+    print(temp.runtimeType);
+    if (temp != null) {
+      List<dynamic> rawData = box.get('city');
+      List<Map<String, dynamic>> data = rawData
+          .map(
+              (item) => (item as Map<dynamic, dynamic>).cast<String, dynamic>())
+          .toList();
 
-    listOfCity.setCityList(data, context);
+      listOfCity.setCityList(data, context);
+    } else {
+      listOfCity.setCityList([], context);
+    }
   }
 
   Future<void> setLocally(context) async {

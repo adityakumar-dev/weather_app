@@ -1,29 +1,41 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'package:weather_app/services/city_list_handler.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:weather_app/pages/components/extras/error_Dailog.dart';
 import 'package:weather_app/services/weather_api_handler.dart';
 
 class CustomSearchDelegate extends SearchDelegate {
-  final String api = "pk.6f57dd82c8770e242c9e474af9cfa30f";
+  var api = dotenv.get("LOCATION_API");
   List<dynamic> dataWithCoord = [];
-
-  Future<List<Map<String, dynamic>>> fetchCities(String query) async {
-    final response = await http.get(Uri.parse(
-        'https://api.locationiq.com/v1/autocomplete.php?key=$api&q=$query&limit=5&dedupe=1'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      dataWithCoord = data;
-      return data.map((item) {
-        return {
-          'display_name': item['display_name'].toString(),
-          'lat': item['lat'],
-          'lon': item['lon'],
-        };
-      }).toList();
+  bool isErrorShowed = false;
+  Future<List<Map<String, dynamic>>> fetchCities(
+      String query, BuildContext context) async {
+    if (await InternetConnectionChecker().hasConnection) {
+      try {
+        final response = await http.get(Uri.parse(
+            'https://api.locationiq.com/v1/autocomplete.php?key=$api&q=$query&limit=5&dedupe=1'));
+        if (response.statusCode == 200) {
+          List<dynamic> data = json.decode(response.body);
+          dataWithCoord = data;
+          return data.map((item) {
+            return {
+              'display_name': item['display_name'].toString(),
+              'lat': item['lat'],
+              'lon': item['lon'],
+            };
+          }).toList();
+        } else {
+          throw Exception("Failed to get city list");
+        }
+      } on SocketException catch (e) {
+        throw Exception("No internet connection ${e.toString()}");
+      }
     } else {
-      throw Exception("Failed to get city list");
+      getErrorDailog(context);
+      throw Exception("No Internet connection ");
     }
   }
 
@@ -56,7 +68,7 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: fetchCities(query),
+      future: fetchCities(query, context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -76,12 +88,32 @@ class CustomSearchDelegate extends SearchDelegate {
                 title: Text(place),
                 onTap: () async {
                   try {
-                    await weatherCityReport(double.parse(city['lat']),
-                        double.parse(city['lon']), placeName, context, -1);
+                    showDialog(
+                      context: context,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                    if (placeName.length == 1) {
+                      placeName.add(" ");
+                    }
+                    await weatherCityReport(
+                      double.parse(city['lat']),
+                      double.parse(city['lon']),
+                      placeName,
+                      context,
+                    );
                   } catch (e) {
-                    print(e.toString());
+                    Future.delayed(Duration.zero, () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          e.toString(),
+                        ),
+                        backgroundColor: Colors.red,
+                      ));
+                    });
                   }
-                  close(context, place);
+                  Future.delayed(Duration.zero, () => close(context, place));
                 },
               );
             },
@@ -94,14 +126,29 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     return query.isEmpty
-        ? const Center(child: Text("Search for a city"))
+        ? const Center(
+            child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search,
+                size: 150,
+              ),
+              Text(
+                "Search for a city",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ))
         : FutureBuilder<List<Map<String, dynamic>>>(
-            future: fetchCities(query),
+            future: fetchCities(query, context),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Center(child: Text("Error: ${snapshot.error}"));
+                // getErrorDailog(context);
+
+                return const Center(child: Text("Error: Unable To Fetch City"));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text("No suggestions found"));
               } else {

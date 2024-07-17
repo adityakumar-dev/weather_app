@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: non_constant_identifier_names
 RichText appBar_title(dynamic data) {
   return RichText(
     text: TextSpan(

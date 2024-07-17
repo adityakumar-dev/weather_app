@@ -39,7 +39,7 @@ Container weatherForecastHour(bool Function() weatherRepo, var desc) {
         ),
         WeatherComp('assets/images/svg/wind-svg.svg', 'wind Speed',
             weatherRepo() ? 'loading...' : '${desc['wind-speed']}km/h'),
-        WeatherComp('assets/images/svg/moisture-svg.svg', 'wind Speed',
+        WeatherComp('assets/images/svg/moisture-svg.svg', 'Humidity',
             weatherRepo() ? 'loading...' : '${desc['humidity']}%'),
         WeatherComp('assets/images/svg/cloud-svg.svg', 'Cloud',
             weatherRepo() ? 'loading...' : '${desc['cloud']}%'),

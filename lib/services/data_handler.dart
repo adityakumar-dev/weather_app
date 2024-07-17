@@ -1,34 +1,39 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/services/extraGlobalVariable.dart';
 import 'package:weather_app/services/getWeatherDescription.dart';
 
 class AppData extends ChangeNotifier {
   Map<String, dynamic> _data = {};
   get weatherData => _data;
 
-  Future<void> updateDataList(Map<String, dynamic> test) async {
+  Future<void> updateDataList(
+      Map<String, dynamic> test, BuildContext context) async {
     _data = test;
     _data['weatherDesc'] =
         getWeatherDescription(test['current']['weather_code']);
-    _data['current']['date'] = getTime(test['current']['time']);
+    _data['current']['date'] = getTime(test['current']['time'], context);
 
     var convertedTime = [];
     for (var value in _data['hourly']['time']) {
-      convertedTime.add(getTime(value));
+      convertedTime.add(getTime(value, context));
     }
 
     _data['hourly']['time'] = convertedTime;
-    _data['forecast'] = hourlyForecast();
+    _data['forecast'] = hourlyForecast(context);
+
     weeklyForecast();
 
     if (kDebugMode) {}
     notifyListeners();
   }
 
-  String getTime(String isoTime) {
+  String getTime(String isoTime, context) {
+    final extraData = Provider.of<extraVariable>(context, listen: false);
     try {
-      DateTime dateTime =
-          DateTime.parse(isoTime).add(const Duration(hours: 5, minutes: 30));
+      DateTime dateTime = DateTime.parse(isoTime).add(extraData.duration);
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
 
       return formattedDate;
@@ -38,8 +43,8 @@ class AppData extends ChangeNotifier {
     }
   }
 
-  List<Map<String, dynamic>> hourlyForecast() {
-    final dt1 = DateTime.parse(getTime(_data['current']['time']));
+  List<Map<String, dynamic>> hourlyForecast(BuildContext context) {
+    final dt1 = DateTime.parse(getTime(_data['current']['time'], context));
     final forecastTimeStamps = <Map<String, dynamic>>[];
 
     for (int i = 0;
@@ -65,7 +70,6 @@ class AppData extends ChangeNotifier {
   void weeklyForecast() {
     Map<String, Map<String, List<String>>> weeklyDate = {};
     List<dynamic> allDates = _data['hourly']['time'];
-
     for (int i = 0; i < allDates.length; i++) {
       DateTime temp = DateTime.parse(allDates[i]);
       String currentDate =
@@ -132,9 +136,10 @@ class AppData extends ChangeNotifier {
     List date = weeklyDate.keys.toList();
 
     List<Map<String, List<String>>> dateTemp = weeklyDate.values.toList();
-
     _data['weekly'] = dateTemp;
     _data['dates'] = date;
+
+    print(_data['weekly'][0]['time'].length);
   }
 
   List<String> getMaxMinValue(
