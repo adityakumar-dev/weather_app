@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
-import 'package:weather_app/pages/TimeZoneChanger.dart';
 import 'package:weather_app/services/city_list_handler.dart';
 
 class Editcitylist extends StatefulWidget {
@@ -17,7 +16,6 @@ class _EditcitylistState extends State<Editcitylist> {
   Widget build(BuildContext context) {
     final cityOfList = Provider.of<CityList>(context);
     var data = cityOfList.listCity;
-    print(data[0]['current']['is_day']);
     bool isactive = cityOfList.listCity.length > 1 ? true : false;
 
     return Scaffold(
@@ -30,19 +28,6 @@ class _EditcitylistState extends State<Editcitylist> {
             color: Colors.white,
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const TimeZonechanger(),
-                )),
-            child: const Icon(
-              Icons.settings,
-              color: Colors.white,
-            ),
-          )
-        ],
         title: const Text(
           "Edit City",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),

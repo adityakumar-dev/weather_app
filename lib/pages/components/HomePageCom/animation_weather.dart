@@ -4,8 +4,9 @@ import 'package:weather_app/pages/components/HomePageCom/temperature_subtt.dart'
 import 'package:weather_app/pages/components/HomePageCom/main_headerCom.dart';
 import '../../../core/theme/AppPallate.dart';
 
-Column animation_Weather(
-    bool weatherRepo(), bool is_day(), weatheDesc, weatherRepoData) {
+// ignore: non_constant_identifier_names
+Column animation_Weather(bool Function() weatherRepo, bool Function() is_day,
+    weatheDesc, weatherRepoData) {
   return Column(
     children: [
       Lottie.asset(

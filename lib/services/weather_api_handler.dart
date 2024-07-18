@@ -25,14 +25,18 @@ Future<void> weatherCityReport(
     Future.delayed(Duration.zero, () async {
       final weatherData = Provider.of<AppData>(context, listen: false);
       await weatherData.updateDataList(result, context);
-      final cityOfList = Provider.of<CityList>(context, listen: false);
+      Future.delayed(Duration.zero, () async {
+        final cityOfList = Provider.of<CityList>(context, listen: false);
 
-      await cityOfList.addCityList(weatherData.weatherData, context);
+        await cityOfList.addCityList(weatherData.weatherData, context);
+      });
     });
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            Text("Error : unable to get data code : ${weather.statusCode}")));
+    Future.delayed(Duration.zero, () {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Error : unable to get data code : ${weather.statusCode}")));
+    });
   }
 }
 
@@ -58,11 +62,13 @@ Future<void> updateCityReport(BuildContext context) async {
         cityOfList.updateCityList(i, weatherData.weatherData);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            Text("Error : unable to get data code : ${weather.statusCode}"),
-        backgroundColor: Colors.red,
-      ));
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Error : unable to get data code : ${weather.statusCode}"),
+          backgroundColor: Colors.red,
+        ));
+      });
     }
   }
 

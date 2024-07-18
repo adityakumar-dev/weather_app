@@ -6,6 +6,7 @@ import 'package:weather_app/services/getWeatherDescription.dart';
 
 Container weatherForecastHour(bool Function() weatherRepo, var desc) {
   var data = getWeatherDescription(desc['weathercode']);
+  // ignore: non_constant_identifier_names
   bool is_day() => (desc['is_day']) == 1 ? true : false;
   String? str = weatherRepo()
       ? 'assets/lottie/error.json'

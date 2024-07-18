@@ -1,8 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:weather_app/services/extraGlobalVariable.dart';
 import 'package:weather_app/services/getWeatherDescription.dart';
 
 class AppData extends ChangeNotifier {
@@ -12,6 +12,7 @@ class AppData extends ChangeNotifier {
   Future<void> updateDataList(
       Map<String, dynamic> test, BuildContext context) async {
     _data = test;
+
     _data['weatherDesc'] =
         getWeatherDescription(test['current']['weather_code']);
     _data['current']['date'] = getTime(test['current']['time'], context);
@@ -23,17 +24,17 @@ class AppData extends ChangeNotifier {
 
     _data['hourly']['time'] = convertedTime;
     _data['forecast'] = hourlyForecast(context);
-
     weeklyForecast();
 
+    _data['current']['time'] = DateFormat('yyyy-MM-dd HH:mm')
+        .format(DateTime.parse(_data['current']['time']));
     if (kDebugMode) {}
     notifyListeners();
   }
 
   String getTime(String isoTime, context) {
-    final extraData = Provider.of<extraVariable>(context, listen: false);
     try {
-      DateTime dateTime = DateTime.parse(isoTime).add(extraData.duration);
+      DateTime dateTime = DateTime.parse(isoTime);
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
 
       return formattedDate;
@@ -138,8 +139,6 @@ class AppData extends ChangeNotifier {
     List<Map<String, List<String>>> dateTemp = weeklyDate.values.toList();
     _data['weekly'] = dateTemp;
     _data['dates'] = date;
-
-    print(_data['weekly'][0]['time'].length);
   }
 
   List<String> getMaxMinValue(

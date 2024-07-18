@@ -4,13 +4,13 @@ import 'package:lottie/lottie.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
 
 Container getWeeklyWidget(
-    context, bool weatherRepo(), dates, weekly, int index) {
+    context, bool Function() weatherRepo, dates, weekly, int index) {
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 15),
     padding: const EdgeInsets.all(5),
     width: MediaQuery.of(context).size.width - 30,
     decoration: BoxDecoration(
-        color: Color.fromRGBO(255, 255, 255, 0.3),
+        color: const Color.fromRGBO(255, 255, 255, 0.3),
         borderRadius: BorderRadius.circular(20)),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

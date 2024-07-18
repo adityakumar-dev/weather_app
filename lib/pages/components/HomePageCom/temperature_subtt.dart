@@ -1,3 +1,5 @@
+// ignore_for_file: use_function_type_syntax_for_parameters, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/AppPallate.dart';

@@ -34,7 +34,7 @@ class CustomSearchDelegate extends SearchDelegate {
         throw Exception("No internet connection ${e.toString()}");
       }
     } else {
-      getErrorDailog(context);
+      Future.delayed(Duration.zero, () => getErrorDailog(context));
       throw Exception("No Internet connection ");
     }
   }
@@ -89,6 +89,7 @@ class CustomSearchDelegate extends SearchDelegate {
                 onTap: () async {
                   try {
                     showDialog(
+                      barrierDismissible: false,
                       context: context,
                       builder: (context) => const Center(
                         child: CircularProgressIndicator(),

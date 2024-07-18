@@ -46,7 +46,7 @@ class CityList extends ChangeNotifier {
     }
     await storeLocally.setLocally(context);
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+        .pushReplacement(MaterialPageRoute(builder: (context) => const Home()));
     // Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
 
     // _cityList.add(weatherProvider.weatherData);

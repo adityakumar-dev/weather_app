@@ -2,9 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:provider/provider.dart';
-import 'package:weather_app/services/AppBartittleHandler.dart';
-import 'package:weather_app/services/city_list_handler.dart';
 import 'package:weather_app/services/location_handler.dart';
 import 'package:weather_app/services/weather_api_handler.dart';
 
@@ -16,11 +13,12 @@ GestureDetector AppBarLeadingComponent(context) {
   return GestureDetector(
     onTap: () async {
       showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (context) {
             return const Center(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(20.0),
                 child: LinearProgressIndicator(),
               ),
             );
@@ -34,7 +32,6 @@ GestureDetector AppBarLeadingComponent(context) {
           var PlaceName =
               data['display_name'].toString().split(', ').toSet().toList();
           List place = [PlaceName[0], PlaceName[1]];
-          final cityOfList = Provider.of<CityList>(context, listen: false);
           weatherCityReport(
             position.latitude,
             position.longitude,

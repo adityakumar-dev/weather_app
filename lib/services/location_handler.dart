@@ -53,7 +53,8 @@ Future<bool> promptEnableLocation(BuildContext context) async {
           onPressed: () async {
             await Geolocator.openLocationSettings();
             userAccepted = await Geolocator.isLocationServiceEnabled();
-            Navigator.of(context).pop(userAccepted);
+            Future.delayed(
+                Duration.zero, () => Navigator.of(context).pop(userAccepted));
           },
           child: const Text("Enable"),
         ),

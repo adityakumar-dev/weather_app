@@ -7,7 +7,6 @@ class StoreLocally {
     var box = await Hive.openBox('userData');
     var temp = box.get('city');
     final listOfCity = Provider.of<CityList>(context, listen: false);
-    print(temp.runtimeType);
     if (temp != null) {
       List<dynamic> rawData = box.get('city');
       List<Map<String, dynamic>> data = rawData

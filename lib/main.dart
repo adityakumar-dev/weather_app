@@ -6,7 +6,6 @@ import 'package:weather_app/pages/Splash.dart';
 import 'package:weather_app/services/AppBartittleHandler.dart';
 import 'package:weather_app/services/city_list_handler.dart';
 import 'package:weather_app/services/data_handler.dart';
-import 'package:weather_app/services/extraGlobalVariable.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -16,7 +15,6 @@ void main() async {
       ChangeNotifierProvider(create: (_) => AppData()),
       ChangeNotifierProvider(create: (_) => CityList()),
       ChangeNotifierProvider(create: (_) => AppBarHandler()),
-      ChangeNotifierProvider(create: (_) => extraVariable())
     ],
     child: const MyApp(),
   ));

@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
 import 'package:weather_app/pages/EditCityList.dart';
@@ -29,6 +30,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final cityOfList = Provider.of<CityList>(context);
     final appBarIndex = Provider.of<AppBarHandler>(context);
+    // ignore: no_leading_underscores_for_local_identifiers
     Future<void> _refreshData() async {
       updateCityReport(context);
 
@@ -57,7 +59,6 @@ class _HomeState extends State<Home> {
             var weekly = weatherProvider['weekly'];
             var dates = weatherProvider['dates'];
             bool is_day() => weatherRepoData['is_day'] == 1 ? true : false;
-
             return GestureDetector(
               onHorizontalDragEnd: (details) {
                 if (details.primaryVelocity! < 0) {
@@ -106,7 +107,10 @@ class _HomeState extends State<Home> {
                               color: AppPallate.white),
                         ),
                         Text(
-                          weatherRepo() ? ' ' : weatherRepoData['date'],
+                          weatherRepo()
+                              ? ' '
+                              : DateFormat('yyyy-MM-dd HH:mm').format(
+                                  DateTime.parse(weatherRepoData['time'])),
                           style: const TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 10,
