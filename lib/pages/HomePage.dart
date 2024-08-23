@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:weather_app/core/theme/AppPallate.dart';
 import 'package:weather_app/pages/EditCityList.dart';
 import 'package:weather_app/pages/components/HomePageCom/WeeklyForecast.dart';
@@ -99,6 +100,13 @@ class _HomeState extends State<Home> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+                        SmoothPageIndicator(
+                            effect: const WormEffect(
+                                activeDotColor: Colors.white,
+                                dotHeight: 10,
+                                dotWidth: 10),
+                            controller: pageController,
+                            count: cityOfList.listCity.length),
                         const Text(
                           "Today",
                           style: TextStyle(

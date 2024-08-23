@@ -34,7 +34,7 @@ class CityList extends ChangeNotifier {
 
   Future<void> setCityList(List<dynamic> data, context) async {
     // _cityList = data;
-    if (data.isEmpty) {
+    if (data.isEmpty || data == []) {
       await weatherCityReport(
         28.70405920,
         77.10249020,
